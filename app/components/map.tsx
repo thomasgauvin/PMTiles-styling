@@ -30,17 +30,32 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
           sources: {
             protomaps: {
               type: "vector",
-              url: "pmtiles://http://192.168.1.166:8080/OUTPUT-world.pmtiles",
+              // url: "pmtiles://http://localhost:8080/world.pmtiles",
+              tiles: ["http://localhost:8787/world/{z}/{x}/{y}.mvt"],
+              // tiles: [
+              //   "https://protomaps-host.tomsprojects.workers.dev/world/{z}/{x}/{y}.mvt",
+              // ],
+              // url: "pmtiles://http://localhost:8787/world/{z}/{x}/{y}.mvt",
+              url: "pmtiles://world.pmtiles",
             },
             protomaps2: {
               type: "vector",
-              url: "pmtiles://http://192.168.1.166:8080/OUTPUT.pmtiles",
+              // url: "pmtiles://http://localhost:8080/nyc.pmtiles",
+              // url: "pmtiles://http://localhost:8787/nyc/{z}/{x}/{y}.mvt",
+              // tiles: ["http://localhost:8787/nyc/{z}/{x}/{y}.mvt"],
+              url: "pmtiles://nyc.pmtiles",
             },
           },
           glyphs:
             "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
           layers: [
-            ...layersWithPartialCustomTheme("protomaps", "light", customTheme),
+            ...layersWithPartialCustomTheme(
+              "protomaps",
+              "light",
+              customTheme
+            ).filter((e) => {
+              return !e.id.includes("background");
+            }),
             ...layersWithPartialCustomTheme("protomaps2", "light", customTheme)
               .filter((e) => {
                 return !e.id.includes("background");
