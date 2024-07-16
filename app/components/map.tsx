@@ -17,6 +17,23 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
     };
   }, []);
 
+  //add service worker
+  useEffect(() => {
+    if ("serviceWorker" in navigator) {   
+      const registration = navigator.serviceWorker.register("/sw2.js").then(
+        function (registration) {
+          console.log(
+            "Service Worker registration successful with scope: ",
+            registration.scope
+          );
+        },
+        function (err) {
+          console.log("Service Worker registration failed: ", err);
+        }
+      );
+    }    
+  }, []);
+
   return (
     <>
       <Map
@@ -31,20 +48,25 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
             protomaps: {
               type: "vector",
               // url: "pmtiles://http://localhost:8080/world.pmtiles",
-              // tiles: ["http://localhost:8787/world/{z}/{x}/{y}.mvt"],
-              tiles: [
-                "https://protomaps-host.tomsprojects.workers.dev/world/{z}/{x}/{y}.mvt",
-              ],
+              // tiles: [
+              //   "https://pmtiles-cloudflare.tomsprojects.workers.dev/world/{z}/{x}/{y}.mvt",
+              // ],
+              // tiles: [
+              //   "https://protomaps-host.tomsprojects.workers.dev/world/{z}/{x}/{y}.mvt",
+              // ],
               // url: "pmtiles://http://localhost:8787/world/{z}/{x}/{y}.mvt",
-              // url: "pmtiles://world.pmtiles",
+              url: "pmtiles://world.pmtiles",
             },
-            // protomaps2: {
-            //   type: "vector",
-            //   // url: "pmtiles://http://localhost:8080/nyc.pmtiles",
-            //   // url: "pmtiles://http://localhost:8787/nyc/{z}/{x}/{y}.mvt",
-            //   // tiles: ["http://localhost:8787/nyc/{z}/{x}/{y}.mvt"],
-            //   url: "pmtiles://test/nyc.pmtiles",
-            // },
+            protomaps2: {
+              type: "vector",
+              // url: "pmtiles://http://localhost:8080/nyc.pmtiles",
+              // url: "pmtiles://http://localhost:8787/nyc/{z}/{x}/{y}.mvt",
+              // tiles: ["http://localhost:8787/nyc/{z}/{x}/{y}.mvt"],
+              url: "pmtiles://nyc.pmtiles",
+              // tiles: [
+              //   "https://pmtiles-cloudflare.tomsprojects.workers.dev/nyc/{z}/{x}/{y}.mvt",
+              // ],
+            },
           },
           glyphs:
             "https://protomaps.github.io/basemaps-assets/fonts/{fontstack}/{range}.pbf",
@@ -56,14 +78,14 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
             ).filter((e) => {
               return !e.id.includes("background");
             }),
-            // ...layersWithPartialCustomTheme("protomaps2", "light", customTheme)
-            //   .filter((e) => {
-            //     return !e.id.includes("background");
-            //   })
-            //   .map((e) => {
-            //     e.id = e.id + "2";
-            //     return e;
-            //   }),
+            ...layersWithPartialCustomTheme("protomaps2", "light", customTheme)
+              .filter((e) => {
+                return !e.id.includes("background");
+              })
+              .map((e) => {
+                e.id = e.id + "2";
+                return e;
+              }),
           ],
         }}
         mapLib={maplibregl}

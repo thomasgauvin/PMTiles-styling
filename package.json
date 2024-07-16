@@ -21,7 +21,9 @@
     "react": "^18",
     "react-dom": "^18",
     "react-map-gl": "^7.1.7",
-    "react-markdown": "^9.0.1"
+    "react-markdown": "^9.0.1",
+    "workbox-routing": "^7.1.0",
+    "workbox-strategies": "^7.1.0"
   },
   "devDependencies": {
     "@cloudflare/next-on-pages": "^1.12.1",
