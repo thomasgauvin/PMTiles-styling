@@ -8,7 +8,25 @@ import layers, { layersWithPartialCustomTheme } from "protomaps-themes-base";
 
 import { Theme } from "../lib/theme";
 
-export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) => {
+if ("serviceWorker" in navigator) {
+  const registration = navigator.serviceWorker.register("/sw2.js").then(
+    function (registration) {
+      console.log(
+        "Service Worker registration successful with scope: ",
+        registration.scope
+      );
+    },
+    function (err) {
+      console.log("Service Worker registration failed: ", err);
+    }
+  );
+}
+
+export const MapComponent = ({
+  customTheme,
+}: {
+  customTheme: Partial<Theme>;
+}) => {
   useEffect(() => {
     let protocol = new Protocol();
     maplibregl.addProtocol("pmtiles", protocol.tile);
@@ -17,21 +35,28 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
     };
   }, []);
 
-  //add service worker
   useEffect(() => {
-    if ("serviceWorker" in navigator) {   
-      const registration = navigator.serviceWorker.register("/sw2.js").then(
-        function (registration) {
-          console.log(
-            "Service Worker registration successful with scope: ",
-            registration.scope
-          );
-        },
-        function (err) {
-          console.log("Service Worker registration failed: ", err);
-        }
-      );
-    }    
+    if ("serviceWorker" in navigator) {
+      window.addEventListener("load", () => {
+        navigator.serviceWorker
+          .getRegistrations()
+          .then((registrations) => {
+            const sw2Registered = registrations.some((registration) =>
+              registration.active?.scriptURL.endsWith("/sw2.js")
+            );
+
+            if (!sw2Registered) {
+              window.location.reload();
+            }
+          })
+          .catch((error) => {
+            console.error(
+              "Error checking service worker registrations:",
+              error
+            );
+          });
+      });
+    }
   }, []);
 
   return (
