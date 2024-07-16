@@ -32,11 +32,11 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
               type: "vector",
               // url: "pmtiles://http://localhost:8080/world.pmtiles",
               // tiles: ["http://localhost:8787/world/{z}/{x}/{y}.mvt"],
-              tiles: [
-                "https://protomaps-host.tomsprojects.workers.dev/world/{z}/{x}/{y}.mvt",
-              ],
+              //tiles: [
+              //  "https://protomaps-host.tomsprojects.workers.dev/world/{z}/{x}/{y}.mvt",
+              //],
               // url: "pmtiles://http://localhost:8787/world/{z}/{x}/{y}.mvt",
-              // url: "pmtiles://world.pmtiles",
+              url: "pmtiles://world.pmtiles",
             },
             // protomaps2: {
             //   type: "vector",
