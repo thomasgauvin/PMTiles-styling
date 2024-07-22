@@ -1,5 +1,3 @@
-"use client";
-
 import { useEffect, useState } from "react";
 import { MapComponent } from "./components/map";
 import {
@@ -7,19 +5,16 @@ import {
   convertThemeToThemeWithThemeItemState,
   initialThemeWithThemeItemState,
   Theme,
-  ThemeWithThemeItemState,
   LIGHT as lightTheme,
   DARK as darkTheme,
   WHITE as whiteTheme,
   BLACK as blackTheme,
   CONTRAST as contrastTheme,
   GRAYSCALE as grayscaleTheme,
+  ThemeWithThemeItemState,
 } from "./lib/theme";
-import { layersWithPartialCustomTheme } from "protomaps-themes-base";
-import { LayerSpecification } from "maplibre-gl";
-import ReactMarkdown from "react-markdown";
 
-export default function Home() {
+export default function App() {
   const [customThemeWithThemeItemState, setCustomThemeWithThemeItemState] =
     useState<ThemeWithThemeItemState>(initialThemeWithThemeItemState);
   const [selectedTheme, setSelectedTheme] = useState<string>("light");
