@@ -15,15 +15,18 @@ import {
 } from "./lib/theme";
 
 export default function App() {
+  //theme state
   const [customThemeWithThemeItemState, setCustomThemeWithThemeItemState] =
     useState<ThemeWithThemeItemState>(initialThemeWithThemeItemState);
-  const [selectedTheme, setSelectedTheme] = useState<string>("light");
+  //previous theme allows returning to custom after changing preset (the last edited theme is kept in state and can be returned to by clicking the custom button)
+  const [previousTheme, setPreviousTheme] = 
+  useState<Partial<Theme>>(convertThemeWithThemeItemStateToTheme(customThemeWithThemeItemState));
+
+  //the theme that gets rendered
   const [customTheme, setCustomTheme] = useState<Partial<Theme>>(
     convertThemeWithThemeItemStateToTheme(customThemeWithThemeItemState)
   );
-  const [previousTheme, setPreviousTheme] = useState<ThemeWithThemeItemState>(
-    initialThemeWithThemeItemState
-  );
+
 
   const themes: {
     [key: string]: { name: string; theme: Theme | Partial<Theme> }
@@ -54,7 +57,7 @@ export default function App() {
     },
     "custom": {
       name: "Custom",
-      theme: customTheme,
+      theme: previousTheme,
     },
    };
 
@@ -65,8 +68,6 @@ export default function App() {
   }, [customThemeWithThemeItemState]);
 
   const handleColorChange = (key: string, color: string) => {
-    console.log(key, color);
-
     setCustomThemeWithThemeItemState((prevThemeWithThemeItemState) => ({
       ...prevThemeWithThemeItemState,
       [key]: {
@@ -74,6 +75,18 @@ export default function App() {
         color: color,
       },
     }));
+    setPreviousTheme(() => {
+      const prevPreviousThemeWithThemeItemState = convertThemeToThemeWithThemeItemState(customTheme);
+      
+      return convertThemeWithThemeItemStateToTheme({
+        ...prevPreviousThemeWithThemeItemState,
+        [key]: {
+          ...prevPreviousThemeWithThemeItemState[key],
+          color: color,
+        },  
+      })
+    });
+
   };
 
   const handleNullChange = (key: string, checked: boolean) => {
@@ -84,10 +97,21 @@ export default function App() {
         enabled: checked,
       },
     }));
+    setPreviousTheme(() => {
+      const prevPreviousThemeWithThemeItemState = convertThemeToThemeWithThemeItemState(customTheme);
+      
+      return convertThemeWithThemeItemStateToTheme({
+        ...prevPreviousThemeWithThemeItemState,
+        [key]: {
+          ...prevPreviousThemeWithThemeItemState[key],
+          enabled: checked,
+        },  
+      })
+    });
+
   };
 
   const handleThemeSelect = (theme: Theme | Partial<Theme>) => {
-    setPreviousTheme(customThemeWithThemeItemState);
     setCustomThemeWithThemeItemState(
       convertThemeToThemeWithThemeItemState(theme)
     );
