@@ -24,29 +24,28 @@ self.addEventListener('fetch', event => {
             }
         }));
     }
-    if ((new URL(request.url)).pathname !== "/world.pmtiles") {
+    if ((new URL(request.url)).pathname !== "/world.pmtiles" && (new URL(request.url)).pathname !== "/nyc.pmtiles") {
         return event.respondWith(fetch(request));
     }
-
 
     event.respondWith(handleRangeRequest(request));
 });
 
-async function fetchPmtilesFile() {
+async function fetchPmtilesFile(path) {
     const cache = await caches.open("pmtiles-file-cache");
-    const cachedResponse = await cache.match('/world.pmtiles');
+    const cachedResponse = await cache.match(path);
 
     if (cachedResponse) {
         return cachedResponse.arrayBuffer();
     }
 
     console.log("Fetching from network");
-    const response = await fetch('/world.pmtiles');
+    const response = await fetch(path);
     const responseClone = response.clone()
     const responseBuffer = await response.arrayBuffer();
 
     try {
-        await cache.put('/world.pmtiles', responseClone);
+        await cache.put(path, responseClone);
     } catch (e) {
         console.log("Problem writing to cache: ", e);
     }
@@ -55,7 +54,8 @@ async function fetchPmtilesFile() {
 }
 
 async function handleRangeRequest(request) {
-    const pmtilesFile = await fetchPmtilesFile();
+    const path = (new URL(request.url)).pathname;
+    const pmtilesFile = await fetchPmtilesFile(path);
     const rangeHeader = request.headers.get('Range');
 
     if (rangeHeader) {
