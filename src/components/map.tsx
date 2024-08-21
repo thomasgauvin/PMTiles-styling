@@ -22,16 +22,22 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
 
   useEffect(() => {
     const checkServiceWorker = async () => {
-      const registration = await navigator.serviceWorker.getRegistration('/service-worker.js');
+      try {
+        const response = await fetch('/checkSw');
+        console.log(response);
+        console.log(response.headers.get('X-Sw-Tag'))
 
-      console.log('Checking Service Worker registration...');
-      // Check if the service worker is registered and active
-      if (registration) {
-        console.log('Service Worker is registered:', registration);
-        setSwLoaded(true);
-      } else {
-        console.log('Service Worker is not registered');
-        window.location.reload(); // Reload the page in case the service worker is not active (need service worker to be active for map to load)
+        // Check if the response status is 202 and the X-Sw-Tag header is present
+        if (response.status === 202 && response.headers.get('X-Sw-Tag') === 'Served by Service Worker') {
+          console.log('Service worker is active');
+          setSwLoaded(true);
+        } else {
+          console.log('Service worker is not active, reloading the page...');
+          window.location.reload();
+        }
+      } catch (error) {
+        console.error('Error checking service worker:', error);
+        window.location.reload(); // Reload the page in case of an error
       }
     };
 
@@ -50,6 +56,7 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
           });
     }
   }, []);
+
 
   return (
     <>
@@ -109,4 +116,30 @@ export const MapComponent = ({ customTheme }: { customTheme: Partial<Theme> }) =
 
     </>
   );
+};
+
+const useCheckServiceWorker = () => {
+  const [swStatus, setSwStatus] = useState(null);
+
+  useEffect(() => {
+      const checkServiceWorker = async () => {
+          try {
+              const response = await fetch('/checkSw');
+              const text = await response.text();
+              
+              if (response.status === 200 && text.trim() === 'A-OK') {
+                  setSwStatus('A-OK');
+              } else {
+                  setSwStatus('failed');
+              }
+          } catch (error) {
+              console.error('Error checking Service Worker status:', error);
+              setSwStatus('error');
+          }
+      };
+
+      checkServiceWorker();
+  }, []);
+
+  return swStatus;
 };

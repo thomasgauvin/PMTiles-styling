@@ -11,9 +11,19 @@ self.addEventListener('activate', event => {
 
 self.addEventListener('fetch', event => {
     const request = event.request;
-    console.log("Service Worker handling network request for: ", request.url);
+    console.log("Handling network request for: ", request.url);
     console.log((new URL(request.url)).pathname)
 
+    if((new URL(request.url)).pathname === "/checkSw"){
+        console.log("returning A-OK")
+        return event.respondWith(new Response("A-OK", {
+            status: 202, // Use 200 to indicate successful response
+            headers: {
+                'Content-Type': 'text/plain', // Set appropriate content type
+                'X-Sw-Tag': 'Served by Service Worker'
+            }
+        }));
+    }
     if ((new URL(request.url)).pathname !== "/world.pmtiles" && (new URL(request.url)).pathname !== "/nyc.pmtiles") {
         return event.respondWith(fetch(request));
     }
@@ -44,7 +54,6 @@ async function fetchPmtilesFile(path) {
 }
 
 async function handleRangeRequest(request) {
-    console.log("Service Worker handling range request for: ", request.url);
     const path = (new URL(request.url)).pathname;
     const pmtilesFile = await fetchPmtilesFile(path);
     const rangeHeader = request.headers.get('Range');
