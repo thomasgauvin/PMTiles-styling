@@ -158,6 +158,8 @@ export default function App() {
         customThemeString = input.replace("const customTheme =", "");
       }
 
+      customThemeString = customThemeString.replace(/\\"|"(?:\\"|[^"])*"|(\/\/.*|\/\*[\s\S]*?\*\/)/g, (m, g) => g ? "" : m);
+
       const parsedTheme = JSON.parse(customThemeString);
       setCustomThemeWithThemeItemState(
         convertThemeToThemeWithThemeItemState(parsedTheme)
