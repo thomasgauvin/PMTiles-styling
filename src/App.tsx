@@ -21,11 +21,40 @@ export default function App() {
   //previous theme allows returning to custom after changing preset (the last edited theme is kept in state and can be returned to by clicking the custom button)
   const [previousTheme, setPreviousTheme] = 
   useState<Partial<Theme>>(convertThemeWithThemeItemStateToTheme(customThemeWithThemeItemState));
-
   //the theme that gets rendered
   const [customTheme, setCustomTheme] = useState<Partial<Theme>>(
     convertThemeWithThemeItemStateToTheme(customThemeWithThemeItemState)
   );
+  //state for input via the code editor
+  const [codeInput, setCodeInput] = useState<string>(`const customTheme =
+  ${JSON.stringify(
+    convertThemeWithThemeItemStateToTheme(
+      customThemeWithThemeItemState
+    ),
+    null,
+    2
+  )}
+  `);
+
+
+  const staticCodeToCreateCustomLayer = `const customLayer = 
+  layersWithPartialCustomTheme(
+    "<ENTER SOURCE HERE>", 
+    "light", 
+    customTheme
+  );`;
+
+  useEffect(() => {
+    setCodeInput(`const customTheme =
+  ${JSON.stringify(
+    convertThemeWithThemeItemStateToTheme(
+      customThemeWithThemeItemState
+    ),
+    null,
+    2
+  )}
+  `);
+  }, [customThemeWithThemeItemState]);
 
 
   const themes: {
@@ -117,6 +146,30 @@ export default function App() {
     );
   };
 
+  const handleCodeInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    const input = event.target.value;
+    setCodeInput(input);
+
+    //parse the input and set the custom theme
+    try {
+      //get all the code between the curly braces (in case the user changes the variable name)
+      let customThemeString = input.match(/{[^}]*}/)![0];
+      if(!customThemeString) {
+        customThemeString = input.replace("const customTheme =", "");
+      }
+
+      const parsedTheme = JSON.parse(customThemeString);
+      setCustomThemeWithThemeItemState(
+        convertThemeToThemeWithThemeItemState(parsedTheme)
+      );
+      
+    } catch (error) {
+      console.error("Error parsing JSON", error);
+    }
+
+  }
+
+
   function formatString(input: string): string {
     return input
       .toLowerCase()
@@ -179,7 +232,7 @@ export default function App() {
       <div className="absolute bottom-8 sm:relative sm:bottom-0 w-full px-2 pb-2">
         <div className=" bg-white w-full bg-opacity-70 backdrop-blur-lg my-1 rounded-xl bottom-0">
           <Details summary="Preset themes">
-            {Object.keys(themes).map((key, index) => (
+            {Object.keys(themes).map((key, _) => (
               <div
                 key={key}
                 onClick={() => handleThemeSelect(themes[key].theme)}
@@ -237,7 +290,18 @@ export default function App() {
               </div>
             ))}
           </Details>
-          <Details summary="Output (custom theme)">
+          <Details summary="Code (custom theme)">
+            
+            <div className="italic p-2 bg-slate-200 text-xs rounded w-full">
+              Pro-tip: The code editor for `customTheme` supports editing. You can copy the code and ask an AI to generate a theme for you and paste it back here to view it.
+            </div>
+            <textarea rows={83} className="mt-2 p-2 bg-slate-200 text-xs rounded w-full" value={codeInput} 
+              onChange={handleCodeInputChange}
+              >
+            </textarea>
+            <div className="mt-1 p-2 bg-slate-200 text-xs rounded w-full">
+              {staticCodeToCreateCustomLayer}
+            </div>
             <div className="bg-slate-200 p-2 my-2 rounded-lg text-xs">
               You can use the following custom theme with MapLibre GL JS and
               Protomaps by using{" "}
@@ -258,23 +322,6 @@ export default function App() {
               </a>
               . Refer to this source code to see a sample implementation.
             </div>
-            <pre className="p-2 bg-slate-200 text-xs rounded w-full">
-              const customTheme ={" "}
-              {JSON.stringify(
-                convertThemeWithThemeItemStateToTheme(
-                  customThemeWithThemeItemState
-                ),
-                null,
-                2
-              )}
-              <br />
-              const customLayer = <br />
-              &nbsp;&nbsp;layersWithPartialCustomTheme(
-              <br />
-              &nbsp;&nbsp;&nbsp;&nbsp;"&lt;ENTER SOURCE HERE&gt;", <br />
-              &nbsp;&nbsp;&nbsp;&nbsp;"light", <br />
-              &nbsp;&nbsp;&nbsp;&nbsp;customTheme)
-            </pre>
           </Details>
         </div>
       </div>
