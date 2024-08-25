@@ -344,7 +344,7 @@ export default function App() {
           <div className="text-md font-bold">{title}</div>
           <div className="text-xs">{subtitle}</div>
         </div>
-        <a href="#" className="text-gray-300 hover:text-white">
+        <a href="https://github.com/thomasgauvin/PMTiles-styling" className="text-gray-300 hover:text-white">
           GitHub
         </a>
       </header>
